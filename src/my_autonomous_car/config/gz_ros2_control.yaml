@@ -1,0 +1,40 @@
+controller_manager: 
+  ros__parameters:
+    update_rate: 10  # Hz
+    
+    ackermann_steering_controller:
+      type: ackermann_steering_controller/AckermannSteeringController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+ackermann_steering_controller:
+  ros__parameters:
+
+    # IMPORTANT: Order is RIGHT, LEFT
+    traction_joints_names: ["right_back_wheel_joint", "left_back_wheel_joint"]
+    steering_joints_names: ["right_front_axis_joint", "left_front_axis_joint"]
+
+    wheelbase: 0.14
+    traction_wheels_radius: 0.0325
+
+    # If front wheels also spin (4-wheel drive), you *may* add them here
+    # traction_wheels_radius only applies to the traction (rear) wheels
+
+    # Optional geometry params (recommended)
+    steering_track_width: 0.12
+    traction_track_width: 0.12
+
+    # Frame configuration
+    base_frame_id: "base_link"
+    odom_frame_id: "odom"
+    enable_odom_tf: true
+    publish_odom: true
+    publish_odom_tf: true
+
+    # Behavior parameters
+    publish_cmd: true
+    use_stamped_vel: false
+    open_loop: false
+    position_feedback: true
+    reference_timeout: 1.0

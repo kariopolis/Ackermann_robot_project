@@ -1,0 +1,409 @@
+###################UNCOMENT WHEN USING PREPLANNED MAP#####################################################
+# amcl:
+#   ros__parameters:
+#     use_sim_time: False
+#     #rotational nose
+#     alpha1: 1.0 #0.2
+#     alpha2: 0.2 
+#     #translational noise
+#     alpha3: 1.5 #0.2
+#     alpha4: 0.2
+#     #additional noise
+#     alpha5: 0.1
+#     base_frame_id: "base_footprint"
+#     beam_skip_distance: 0.5
+#     beam_skip_error_threshold: 0.9
+#     beam_skip_threshold: 0.3
+#     do_beamskip: false
+#     global_frame_id: "map"
+#     lambda_short: 0.1
+#     laser_likelihood_max_dist: 2.0
+#     laser_max_range: 12.0
+#     laser_min_range: -1.0
+#     laser_model_type: "likelihood_field"
+#     max_beams: 60
+#     #max number of particles. More = more accuracy but slower. 
+#     max_particles: 2000
+#     #min number of particles
+#     min_particles: 500
+#     odom_frame_id: "odom"
+#     #KLD stands for Kullback-Leibler Divergence (also called relative entropy).
+#     #KLD sampling error bound
+#     pf_err: 0.05
+#     pf_z: 0.99 #KLD sampling upper quantile standart value
+#     recovery_alpha_fast: 0.0
+#     recovery_alpha_slow: 0.0
+#     #Resample every N motion updates. 1 = every update (most common), 2 = every second update.
+#     resample_interval: 1
+#     robot_model_type: "ackermann"
+#     save_pose_rate: 0.5
+#     sigma_hit: 0.2
+#     #Whether AMCL itself publishes the map → odom transform (set to false if robot_pose_ekf or robot_localization does it).
+#     tf_broadcast: true #true
+#     #How long AMCL tolerates missing transforms before warning/errors
+#     transform_tolerance: 1.0
+#     #Minimum rotation (radians) the robot must turn to trigger a filter update.
+#     update_min_a: 0.5 #0.2
+#     #Minimum translation (meters) the robot must move to trigger a filter update.
+#     update_min_d: 0.6 #0.25
+#     z_hit: 0.5
+#     z_max: 0.05
+#     z_rand: 0.5
+#     z_short: 0.05
+#     scan_topic: scan
+
+# amcl_map_client:
+#   ros__parameters:
+#     use_sim_time: False
+
+# amcl_rclcpp_node:
+#   ros__parameters:
+#     use_sim_time: False
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False #
+    global_frame: map #
+    robot_base_frame: base_footprint #
+    odom_topic: /odom #
+    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+
+
+    enable_groot_monitoring: false # set true only when debugging with Groot2
+    groot_zmq_publisher_port: 1666 #
+    groot_zmq_server_port: 1667 #
+
+bt_navigator_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+controller_server:
+  ros__parameters:
+    use_sim_time: False
+    controller_frequency: 2.0
+
+    #avoid controller noise
+    min_x_velocity_threshold: 0.11
+    min_y_velocity_threshold: 0.1
+    min_theta_velocity_threshold: 0.02
+
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugin: "goal_checker"
+    controller_plugins: ["FollowPath"]
+
+    # Progress checker parameters
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      movement_time_allowance: 10.0
+    # Goal checker parameters
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.1 #0.25
+      yaw_goal_tolerance: 0.35 #0.25 # probably need to reduce##############################
+      stateful: True
+    # DWB parameters
+
+    # FollowPath:
+    #   plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController" #plugin: "dwb_core::DWBLocalPlanner"
+    #   debug_trajectory_details: True
+    #   min_vel_x: 0.11
+    #   min_vel_y: 0.0
+    #   max_vel_x: 0.4
+    #   max_vel_y: 0.0
+    #   max_vel_theta: 1.25
+    #   min_speed_xy: 0.11
+    #   max_speed_xy: 0.4
+    #   min_speed_theta: 0.0
+    #   # Add high threshold velocity for turtlebot 3 issue.
+    #   # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
+    #   acc_lim_x: 1.5 #2.5
+    #   acc_lim_y: 0.0
+    #   acc_lim_theta: 3.2
+    #   decel_lim_x: -2.5
+    #   decel_lim_y: 0.0
+    #   decel_lim_theta: -3.2
+    #   vx_samples: 20
+    #   vy_samples: 1 #5
+    #   vtheta_samples: 20
+    #   sim_time: 1.7
+    #   linear_granularity: 0.05
+    #   angular_granularity: 0.025
+    #   transform_tolerance: 0.2
+    #   xy_goal_tolerance: 0.10
+    #   trans_stopped_velocity: 0.05
+    #   short_circuit_trajectory_evaluation: True
+    #   stateful: True
+    #   Twirling.scale: 4.0
+    #   critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"] #Twirling
+    #   BaseObstacle.scale: 0.02
+    #   PathAlign.scale: 32.0
+    #   PathAlign.forward_point_distance: 0.1
+    #   GoalAlign.scale: 24.0
+    #   GoalAlign.forward_point_distance: 0.1
+    #   PathDist.scale: 32.0
+    #   GoalDist.scale: 24.0
+    #   RotateToGoal.scale: 32.0
+    #   RotateToGoal.slowing_factor: 5.0
+    #   RotateToGoal.lookahead_time: -1.0
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+
+      # --- Core speeds ---
+      desired_linear_vel: 0.30           # typical cruise speed
+      max_linear_accel: 1.5
+      max_linear_decel: -2.5
+
+      # --- Lookahead tuning ---
+      lookahead_dist: 0.5                # good for ~0.3–0.4 m/s cars
+      min_lookahead_dist: 0.25
+      max_lookahead_dist: 0.6
+      lookahead_time: 1.5
+
+      # --- Ackermann behavior ---
+      use_velocity_scaled_lookahead_dist: false
+      rotate_to_heading_angular_vel: 0.5 #0.7
+      allow_reversing: false #true
+
+      # --- Motion smoothing ---
+      use_regulated_linear_velocity_scaling: false
+      regulated_linear_scaling_min_radius: 0.45
+      regulated_linear_scaling_min_speed: 0.11
+
+      # --- Collision cost scaling ---
+      cost_scaling_dist: 0.35
+      cost_scaling_gain: 1.5
+      inflation_cost_scaling_factor: 3.0
+
+      # --- Safety ---
+      transform_tolerance: 0.5
+
+      # --- Goal handling ---
+      xy_goal_tolerance: 0.10
+      yaw_goal_tolerance: 0.35
+
+
+controller_server_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 2.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.05
+      #robot_radius: 0.17
+      footprint: "[ [0.25, 0.12], [0.25, -0.12], [-0.07, -0.12], [-0.07, 0.12] ]"
+      plugins: ["voxel_layer", "inflation_layer"] #"obstacle_layer"
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 6.0
+        inflation_radius: 0.15
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: true
+          marking: True
+          data_type: "LaserScan"
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: True
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      static_layer:
+        map_subscribe_transient_local: True
+      always_send_full_costmap: True
+  local_costmap_client:
+    ros__parameters:
+      use_sim_time: False
+  local_costmap_rclcpp_node:
+    ros__parameters:
+      use_sim_time: False
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 2.0
+      publish_frequency: 2.0
+      global_frame: map
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      #robot_radius: 0.17
+      footprint: "[ [0.25, 0.12], [0.25, -0.12], [-0.07, -0.12], [-0.07, 0.12] ]"
+      resolution: 0.05
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.15
+      always_send_full_costmap: True
+  global_costmap_client:
+    ros__parameters:
+      use_sim_time: False
+  global_costmap_rclcpp_node:
+    ros__parameters:
+      use_sim_time: False
+
+#With prelSLAMed map
+# map_server:
+#   ros__parameters:
+#     use_sim_time: False
+#     yaml_filename: "turtlebot3_world.yaml"
+
+map_saver:
+  ros__parameters:
+    use_sim_time: False
+    save_map_timeout: 5000
+    free_thresh_default: 0.25
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: False
+
+# planner_server:
+#   ros__parameters:
+#     expected_planner_frequency: 20.0
+#     use_sim_time: False
+#     planner_plugins: ["GridBased"]
+#     GridBased:
+#       plugin: "nav2_navfn_planner/NavfnPlanner"
+#       tolerance: 0.5
+#       use_astar: false
+#       allow_unknown: true
+
+# planner_server:
+#   ros__parameters:
+#     expected_planner_frequency: 20.0
+#     use_sim_time: False
+
+#     planner_plugins: ["GridBased"]
+
+#     GridBased:
+#       plugin: "nav2_smac_planner::SmacPlannerHybrid"
+
+#       motion_model_for_search: "REEDS_SHEPP" #'Dubins'
+#       minimum_turning_radius: 0.32
+
+#       allow_unknown: true
+#       tolerance: 0.25
+
+#       downsample_costmap: false
+#       angle_quantization_bins: 72
+#       analytic_expansion_ratio: 3.5
+#       cache_obstacle_heuristic: true
+#       smooth_path: true
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 2.0
+    use_sim_time: false
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner::NavfnPlanner"
+      tolerance: 0.4
+      use_astar: true
+      allow_unknown: true
+      minimum_turning_radius: 0.32   #in meters.
+
+planner_server_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+behavior_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    #recovery_plugins: ["spin", "back_up", "wait"]
+    recovery_plugins: ["back_up", "wait"]
+    back_up:
+      plugin: "nav2_behaviors::BackUp"
+    wait:
+      plugin: "nav2_behaviors::Wait"
+    global_frame: odom
+    robot_base_frame: base_footprint
+    transform_timeout: 0.1
+    use_sim_time: False
+    simulate_ahead_time: 2.0
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: False
+
+collision_monitor:
+  ros__parameters:
+    enabled: true
+
+    base_frame_id: "base_footprint"
+    odom_frame_id: "odom"
+
+    enable_stamped_cmd_vel: false
+
+    # Nav2 outputs:
+    cmd_vel_in_topic: "cmd_vel_nav"
+    # Filtered commands:
+    cmd_vel_out_topic: "cmd_vel_nav_filtered"
+
+    transform_tolerance: 0.5
+    source_timeout: 5.0
+    stop_pub_timeout: 1.5
+
+    polygons: ["PolygonStop", "PolygonSlow"]
+
+    PolygonStop:
+      type: "polygon"
+      points: "[[0.45, 0.18], [0.45, -0.18], [0.10, -0.18], [0.10, 0.18]]"
+      action_type: "stop"
+      min_points: 4
+      visualize: true
+      polygon_pub_topic: "polygon_stop"
+
+    PolygonSlow:
+      type: "polygon"
+      points: "[[0.75, 0.22], [0.75, -0.22], [0.10, -0.22], [0.10, 0.22]]"
+      action_type: "slowdown"
+      slowdown_ratio: 0.35
+      min_points: 4
+      visualize: true
+      polygon_pub_topic: "polygon_slowdown"
+
+    observation_sources: ["scan"]
+    scan:
+      type: "scan"
+      topic: "scan"
+
+
